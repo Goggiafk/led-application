@@ -13,7 +13,7 @@ public class DrawScript : MonoBehaviour
     [SerializeField] private float buttonSize;
     [SerializeField] private float spacing;
     [SerializeField] private Vector2 startPosition;
-    private GameObject[,] matrixOfPixels;
+    public GameObject[,] matrixOfPixels;
     private Vector2 applePosition;
     private Vector2 headPosition;
     public Vector2[] snakeBody;
@@ -22,7 +22,7 @@ public class DrawScript : MonoBehaviour
 
     void Start()
     {
-        matrixOfPixels = new GameObject[(int)matrix.x,(int)matrix.y];
+        matrixOfPixels = new GameObject[(int)matrix.x, (int)matrix.y];
         var currentPosition = startPosition;
         int k = 0;
         for (int i = 0; i < matrix.x; i++)
@@ -31,9 +31,9 @@ public class DrawScript : MonoBehaviour
             for (int j = 0; j < matrix.y; j++)
             {
                 GameObject pixelx = Instantiate(matrixButtonPrefab, matrixArea);
-                matrixOfPixels[i,j] = pixelx;
-                matrixOfPixels[i,j].GetComponent<RectTransform>().localPosition = new Vector3(currentPosition.x, currentPosition.y, 0);
-                matrixOfPixels[i,j].gameObject.GetComponent<PixelScript>().SetMatrixPosition(j, i);
+                matrixOfPixels[i, j] = pixelx;
+                matrixOfPixels[i, j].GetComponent<RectTransform>().localPosition = new Vector3(currentPosition.x, currentPosition.y, 0);
+                matrixOfPixels[i, j].gameObject.GetComponent<PixelScript>().SetMatrixPosition(j, i);
                 currentPosition.y += buttonSize + spacing;
             }
             currentPosition.x += buttonSize + spacing;
@@ -53,9 +53,7 @@ public class DrawScript : MonoBehaviour
     public void StartSnakeMode()
     {
         snakeBody = new Vector2[4];
-        matrixOfPixels[4,13].GetComponent<PixelScript>().LightPixel(fcp.color);
-        matrixOfPixels[4,14].GetComponent<PixelScript>().LightPixel(fcp.color);
-        matrixOfPixels[4,15].GetComponent<PixelScript>().LightPixel(fcp.color);
+        matrixOfPixels[4, 15].GetComponent<PixelScript>().LightPixel(fcp.color);
 
         headPosition = new Vector2(4, 15);
         snakeBody[0] = new Vector2(4, 14);
@@ -80,65 +78,107 @@ public class DrawScript : MonoBehaviour
 
     private void StartMoving()
     {
-        headPosition += direction;
-        
-
-        if ((int)headPosition.y + (int)direction.y > (int)matrix.y || (int)headPosition.y + (int)direction.y < 0)
-        {
-            StopAllCoroutines();
-            GameManager.Instance.ledController.CleanMatrix();
-            return;
-        }
-       
-
-        Vector2 newBodyPart = new Vector2(0, 0);
-        if (headPosition == applePosition)
-        {
-            SpawnApple();
-            newBodyPart = snakeBody[snakeBody.Length-1];
-        }
-
-        Vector2[] temp = new Vector2[snakeBody.Length + 1];
-
-        if (newBodyPart.x == 0 && newBodyPart.y == 0)
-        {
-            matrixOfPixels[(int)snakeBody[snakeBody.Length - 1].x, (int)snakeBody[snakeBody.Length - 1].y].GetComponent<PixelScript>().LightPixel(Color.black);
-        }
-
-        Vector2[] tArray = new Vector2[snakeBody.Length];
+        bool isBody = false;
 
         for (int i = 0; i < snakeBody.Length; i++)
         {
-            if (i < tArray.Length - 1)
-                tArray[i + 1] = snakeBody[i];   
+            if ((headPosition + direction) == snakeBody[i])
+            {
+                isBody = true;
+                break;
+            }
         }
 
-        tArray[0] = headPosition;
-
-        snakeBody = tArray;
-
-        if (newBodyPart.x != 0 && newBodyPart.y != 0) { 
-            snakeBody.CopyTo(temp, 0);
-            temp[temp.Length-1] = newBodyPart;
-            snakeBody = temp;
-        }
-
-        matrixOfPixels[(int)headPosition.x, (int)headPosition.y].GetComponent<PixelScript>().LightPixel(fcp.color);
-
-        for (int i = 1; i < snakeBody.Length; i++)
+        if ((headPosition + direction).x >= matrix.x - 1 || (headPosition + direction).y >= matrix.y)
         {
-            matrixOfPixels[(int)snakeBody[i].x, (int)snakeBody[i].y].GetComponent<PixelScript>().LightPixel(fcp.color);
-        }
+            direction.x = 0;
+            direction.y = 0;
+            GameManager.Instance.ledController.CleanMatrix();
+        } 
+        else
+        {
+            
+            headPosition += direction;
 
-        StartCoroutine(Timer(0.25f, () => {
-            StartMoving();
-        }));
+
+            if ((int)headPosition.y + (int)direction.y > (int)matrix.y || (int)headPosition.y + (int)direction.y < 0)
+            {
+                StopAllCoroutines();
+                GameManager.Instance.ledController.CleanMatrix();
+                return;
+            }
+
+
+            Vector2 newBodyPart = new Vector2(0, 0);
+            if (headPosition == applePosition)
+            {
+                SpawnApple();
+                newBodyPart = snakeBody[snakeBody.Length - 1];
+            }
+
+            Vector2[] temp = new Vector2[snakeBody.Length + 1];
+
+            if (newBodyPart.x == 0 && newBodyPart.y == 0)
+            {
+                matrixOfPixels[(int)snakeBody[snakeBody.Length - 1].x, (int)snakeBody[snakeBody.Length - 1].y].GetComponent<PixelScript>().LightPixel(Color.black);
+            }
+
+            Vector2[] tArray = new Vector2[snakeBody.Length];
+
+            for (int i = 0; i < snakeBody.Length; i++)
+            {
+                if (i < tArray.Length - 1)
+                    tArray[i + 1] = snakeBody[i];
+            }
+
+            tArray[0] = headPosition;
+
+            snakeBody = tArray;
+
+            if (newBodyPart.x != 0 && newBodyPart.y != 0)
+            {
+                snakeBody.CopyTo(temp, 0);
+                temp[temp.Length - 1] = newBodyPart;
+                snakeBody = temp;
+            }
+
+            matrixOfPixels[(int)headPosition.x, (int)headPosition.y].GetComponent<PixelScript>().LightPixel(fcp.color);
+
+            for (int i = 1; i < snakeBody.Length; i++)
+            {
+                matrixOfPixels[(int)snakeBody[i].x, (int)snakeBody[i].y].GetComponent<PixelScript>().LightPixel(fcp.color);
+            }
+
+            StartCoroutine(Timer(0.25f, () =>
+            {
+                StartMoving();
+            }));
+        }
+    }
+
+    public void PickBlack()
+    {
+        fcp.color = Color.black;
     }
 
     private void SpawnApple()
     {
         applePosition = new Vector2(Random.Range(1, (int)matrix.x - 1), Random.Range(1, (int)matrix.y - 1));
         matrixOfPixels[(int)applePosition.x, (int)applePosition.y].GetComponent<PixelScript>().LightPixel(Color.red);
+       
+        for (int i = 0; i < snakeBody.Length; i++)
+        {
+            if (applePosition == snakeBody[i])
+            {
+                SpawnApple();
+                break;
+            }
+        }
+
+        if (applePosition == headPosition)
+        {
+            SpawnApple();
+        }
     }
 
     private IEnumerator Timer(float time, System.Action action)

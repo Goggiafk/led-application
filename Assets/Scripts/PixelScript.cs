@@ -6,6 +6,8 @@ public class PixelScript : MonoBehaviour
 {
     Image sprite;
     private Vector2 matrixPosition;
+    public Color rgb;
+
     void Awake()
     {
         sprite = GetComponent<Image>();
@@ -25,6 +27,7 @@ public class PixelScript : MonoBehaviour
     public void WasClicked()
     {
         sprite.color = GameManager.Instance.drawScript.fcp.color;
+        rgb = GameManager.Instance.drawScript.fcp.color;
         GameManager.Instance.ledController.PaintPixel(((int)matrixPosition.x), (int)matrixPosition.y, GameManager.Instance.drawScript.fcp.color);
     }
 

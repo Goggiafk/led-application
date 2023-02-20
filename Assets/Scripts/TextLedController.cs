@@ -11,13 +11,14 @@ public class TextLedController : MonoBehaviour
     [SerializeField] private FlexibleColorPicker fcp;
     [SerializeField] private TMP_InputField inputArea;
     [SerializeField] private TMP_InputField scrollSpeedArea;
-    [SerializeField] private TMP_InputField partyModeSpeedArea;
+    [SerializeField] private TMP_InputField deviceName;
 
     [SerializeField] private TextMeshProUGUI pairedStatus;
     [SerializeField] private TextMeshProUGUI connectionStatus;
 
     [SerializeField] private Slider powerSlider;
 
+    [SerializeField] private GameObject startingOptions;
     [SerializeField] private GameObject[] appWindows;
     [SerializeField] private GameObject[] appButtons;
     [SerializeField] private GameObject[] bluetoothElements;
@@ -32,6 +33,8 @@ public class TextLedController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (PlayerPrefs.HasKey("device"))
+            deviceName.text = PlayerPrefs.GetString("device");
         SetAllElementsActive(false);
         isMenuActive = false;
         IsConnected = false;
@@ -54,6 +57,7 @@ public class TextLedController : MonoBehaviour
 
                 if(isMenuActive == false)
                 {
+                    PlayerPrefs.SetString("device", deviceName.text.ToString());
                     SetAllElementsActive(true);
                     isMenuActive = true;
                 }
@@ -84,6 +88,7 @@ public class TextLedController : MonoBehaviour
 
     public void SetAllElementsActive(bool state)
     {
+        startingOptions.SetActive(!state);
         for (int i = 0; i < appWindows.Length - 1; i++)
         {
             if (!state)
@@ -118,12 +123,46 @@ public class TextLedController : MonoBehaviour
         }
     }
 
+    public void SaveDraw()
+    {
+        string rgbArray = "";
+        int arrayint = 0;
+
+        foreach (var item in GameManager.Instance.drawScript.matrixOfPixels)
+        {
+            var pixelC = item.GetComponent<PixelScript>();
+            rgbArray += "pp`" + pixelC.GetPixelPosition().x.ToString() + "`" + pixelC.GetPixelPosition().y.ToString() + "`" + (pixelC.rgb.r * 255).ToString() + "`" + (pixelC.rgb.g * 255).ToString() + "`" + (pixelC.rgb.g * 255).ToString() + "`";
+            //arrayint++;
+            //if (!(arrayint < 32))
+            //{
+            //    arrayint = 0;
+            //    rgbArray += "},\n{";
+            //}
+        }
+
+        if (!PlayerPrefs.HasKey("savesQuanity"))
+        {
+            PlayerPrefs.SetInt("savesQuanity", 0);
+        }
+        int quanity = PlayerPrefs.GetInt("savesQuanity");
+        PlayerPrefs.SetString("saveData" + quanity, rgbArray);
+        PlayerPrefs.SetInt("savesQuanity", quanity + 1);
+
+        BluetoothService.WritetoBluetooth(PlayerPrefs.GetString("saveData" + quanity));
+        Debug.Log(PlayerPrefs.GetString("saveData" + quanity));
+        Debug.Log(PlayerPrefs.GetInt("savesQuanity"));
+
+
+        Debug.Log(rgbArray);
+
+    }
+
     public void StartButton()
     {
         if (!IsConnected)
         {
-            print("ESP32 Badge");
-            IsConnected = BluetoothService.StartBluetoothConnection("ESP32 Badge");
+            print(deviceName.text.ToString());
+            IsConnected = BluetoothService.StartBluetoothConnection(deviceName.text.ToString());
         }
     }
 
@@ -148,16 +187,9 @@ public class TextLedController : MonoBehaviour
         {
             BluetoothService.WritetoBluetooth("lnt`" + inputArea.text.ToString() + "`");
         }
-        SetColorOfText();
         //UduinoManager.Instance.sendCommand("sss", scrollSpeedArea.text);
         //UduinoManager.Instance.sendCommand("spms", partyModeSpeedArea.text);
         //UduinoManager.Instance.sendCommand("lnt", text);
-    }
-    public void DisplayContextStatic()
-    {
-        var text = ChangeSpaces(inputArea.text.ToCharArray());
-        UduinoManager.Instance.sendCommand("spms", partyModeSpeedArea.text);
-        UduinoManager.Instance.sendCommand("lnst", text);
     }
 
     public void StartTimer()
@@ -224,42 +256,12 @@ public class TextLedController : MonoBehaviour
         BluetoothService.WritetoBluetooth("sss`" + scrollSpeedArea.text + "`");
     }
 
-    public void IsPartyMode(bool state)
-    {
-        char st = ' ';
-        if (state) st = '1';
-        else st = '0';
-        UduinoManager.Instance.sendCommand("spms", partyModeSpeedArea.text);
-        UduinoManager.Instance.sendCommand("spm", st);
-    }
-
-    public void IsAnimMode(bool state)
-    {
-        char st = ' ';
-        if (state) st = '1';
-        else st = '0';
-        //var text1 = ChangeSpaces(animArea1.text.ToCharArray());
-        //var text2 = ChangeSpaces(animArea2.text.ToCharArray());
-        //var text3 = ChangeSpaces(animArea3.text.ToCharArray());
-        //UduinoManager.Instance.sendCommand("lat1", text1);
-        //UduinoManager.Instance.sendCommand("lat2", text2);
-        //UduinoManager.Instance.sendCommand("lat3", text3);
-        UduinoManager.Instance.sendCommand("spms", partyModeSpeedArea.text);
-        UduinoManager.Instance.sendCommand("sam", st);
-    }
 
 
-    public void IsInverse(bool state)
-    {
-        //char st = ' ';
-        //if (state) st = '1';
-        //else st = '0';
-        //UduinoManager.Instance.sendCommand("sim", st);
-    }
 
     public void SetAligment(int id)
     {
-        //UduinoManager.Instance.sendCommand("sa", id);
+        BluetoothService.WritetoBluetooth("sa`" + id + "`");
     }
 
     public void SetScrollAligment(int id)
