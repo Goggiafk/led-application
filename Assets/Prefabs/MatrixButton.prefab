@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7879352226009660017}
   - component: {fileID: -5777654103743135997}
   - component: {fileID: 4956623854363759264}
+  - component: {fileID: 8085282633711575995}
   m_Layer: 5
   m_Name: MatrixButton
   m_TagString: ColorButton
@@ -67,7 +68,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2413806693520163455, guid: fc79f44360374444597ba27167a3d837, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -89,6 +90,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3301eb1547742f4baf1314d58e03acc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  matrixPosition: {x: 0, y: 0}
+  rgb: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &4956623854363759264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,3 +121,23 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &8085282633711575995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7879352226009660030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: 1
+  m_LayoutPriority: 1

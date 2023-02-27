@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class DrawScript : MonoBehaviour
 {
     public FlexibleColorPicker fcp;
-    [SerializeField] private Vector2 matrix;
-    [SerializeField] private Transform matrixArea;
+    public Vector2 matrix;
+    [SerializeField] private GameObject matrixArea;
     [SerializeField] private GameObject matrixButtonPrefab;
     [SerializeField] private float buttonSize;
     [SerializeField] private float spacing;
@@ -23,32 +23,35 @@ public class DrawScript : MonoBehaviour
     void Start()
     {
         matrixOfPixels = new GameObject[(int)matrix.x, (int)matrix.y];
+        startPosition = new Vector2(matrixArea.GetComponent<RectTransform>().rect.width, matrixArea.GetComponent<RectTransform>().rect.height);
         var currentPosition = startPosition;
-        int k = 0;
+
         for (int i = 0; i < matrix.x; i++)
         {
             currentPosition.y = startPosition.y;
             for (int j = 0; j < matrix.y; j++)
-            {
-                GameObject pixelx = Instantiate(matrixButtonPrefab, matrixArea);
+           {
+                GameObject pixelx = Instantiate(matrixButtonPrefab);
+                pixelx.transform.parent = matrixArea.GetComponent<RectTransform>();
                 matrixOfPixels[i, j] = pixelx;
-                matrixOfPixels[i, j].GetComponent<RectTransform>().localPosition = new Vector3(currentPosition.x, currentPosition.y, 0);
                 matrixOfPixels[i, j].gameObject.GetComponent<PixelScript>().SetMatrixPosition(j, i);
+                matrixOfPixels[i, j].transform.localScale = Vector3.one;
                 currentPosition.y += buttonSize + spacing;
             }
             currentPosition.x += buttonSize + spacing;
         }
     }
 
-    public void CurrentClickedGameObject(GameObject other, int id)
+    void Update()
     {
-        switch (other.tag)
-        {
-            case "ColorButton":
-                other.GetComponent<Image>().color = fcp.color;
-                break;
-        }
+        float width = matrixArea.GetComponent<RectTransform>().rect.height;
+        Vector2 newSize = new Vector2(width / 35, width / 35);
+        Vector2 newSpacing = new Vector2(width / 300, width / 300);
+        matrixArea.GetComponent<GridLayoutGroup>().cellSize = newSize;
+        matrixArea.GetComponent<GridLayoutGroup>().spacing = newSpacing;
     }
+
+
 
     public void StartSnakeMode()
     {

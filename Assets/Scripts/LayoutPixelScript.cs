@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems; // 1
 using UnityEngine.UI;
 
-public class PixelScript : MonoBehaviour
+public class LayoutPixelScript : MonoBehaviour
 {
     Image sprite;
     public Vector2 matrixPosition;
@@ -22,12 +22,6 @@ public class PixelScript : MonoBehaviour
     {
         matrixPosition.x = x;
         matrixPosition.y = y;
-    }
-
-    public void WasClicked()
-    {
-        PaintPixel(GameManager.Instance.drawScript.fcp.color);
-        GameManager.Instance.ledController.PaintPixel(((int)matrixPosition.x), (int)matrixPosition.y, GameManager.Instance.drawScript.fcp.color);
     }
 
     public void PaintPixel(Color color)
