@@ -362,5 +362,15 @@ public class TextLedController : MonoBehaviour
             }
         }
         sendBatteryStatus = true;
+        GameManager.Instance.presetLEDControll.isLoadingPreset = false;
+        var layouts = FindObjectsOfType<LayoutScript>();
+        foreach (var layout in layouts)
+        {
+            bool isActive = !GameManager.Instance.presetLEDControll.isLoadingPreset;
+            layout.LoadButton.interactable = isActive;
+            layout.DeleteButton.interactable = isActive;
+            layout.UpButton.interactable = isActive;
+            layout.DownButton.interactable = isActive;
+        }
     }
 }

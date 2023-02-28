@@ -7699,7 +7699,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &916713159
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8240,6 +8240,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   content: {fileID: 41216767}
   layoutprefab: {fileID: 8062810421357552151, guid: 0b725e079c9dcac4bb5f002edf4e1cb0, type: 3}
+  layoutList: []
+  isLoadingPreset: 0
 --- !u!1 &959362128
 GameObject:
   m_ObjectHideFlags: 0
