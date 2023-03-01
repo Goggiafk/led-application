@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Uduino;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Android;
@@ -331,6 +330,23 @@ public class TextLedController : MonoBehaviour
         }
 
         action();
+    }
+    public void OpenPage(string url)
+    {
+        Application.OpenURL(url);
+    }
+
+    public void SendEmail()
+    {
+        string email = "panow.bogdan@gmail.com";
+        string subject = MyEscapeURL("Ordering Badges");
+        string body = MyEscapeURL("Hello\r\nI would like to learn more about CyberBadges and potentionally order some");
+        Application.OpenURL("mailto:" + email + "?subject=" + subject + "&body=" + body);
+    }
+
+    string MyEscapeURL(string url)
+    {
+        return WWW.EscapeURL(url).Replace("+", "%20");
     }
 
     public IEnumerator LoadStuff(int id)
