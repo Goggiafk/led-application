@@ -9,6 +9,7 @@ public class LayoutScript : MonoBehaviour
     [SerializeField] private GameObject layoutPixel;
     public Button LoadButton;
     public Button DeleteButton;
+    public Button EditButton;
     public Button UpButton;
     public Button DownButton;
     public GameObject[,] matrixOfPixels;
@@ -18,7 +19,7 @@ public class LayoutScript : MonoBehaviour
         DrawMatrix();
     }
 
-    private void DrawMatrix()
+    public void DrawMatrix()
     {
         matrixOfPixels = new GameObject[(int)GameManager.Instance.drawScript.matrix.x, (int)GameManager.Instance.drawScript.matrix.y];
         string arg = PlayerPrefs.GetString("saveData" + id);
@@ -60,8 +61,10 @@ public class LayoutScript : MonoBehaviour
             bool isActive = !GameManager.Instance.presetLEDControll.isLoadingPreset;
             layout.LoadButton.interactable = isActive;
             layout.DeleteButton.interactable = isActive;
+            layout.EditButton.interactable = isActive;
             layout.UpButton.interactable = isActive;
             layout.DownButton.interactable = isActive;
+            GameManager.Instance.bottomPanel.SetActive(isActive);
         }
         StartCoroutine(GameManager.Instance.ledController.LoadStuff(id));
     }
@@ -95,7 +98,44 @@ public class LayoutScript : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    public void MoveInList(bool isUp)
+    public void EditLayout()
+    {
+        var manag = GameManager.Instance;
+
+        GameManager.Instance.ledController.editId = id;
+
+        for (int i = 0; i < manag.drawScript.matrix.x ; i++)
+        {
+            for (int j = 0; j < manag.drawScript.matrix.y; j++)
+            {
+                string arg = PlayerPrefs.GetString("saveData" + id);
+                string[] splitArray = arg.Split(char.Parse("`"));
+                int k = 0;
+                var matrixLength = GameManager.Instance.drawScript.matrix;
+                for (int l = 0; l < matrixLength.x; l++)
+                {
+                    for (int m = 0; m < matrixLength.y; m++)
+                    {
+                        int x = int.Parse(splitArray[k]);
+                        k++;
+                        int y = int.Parse(splitArray[k]);
+                        k++;
+                        float r = float.Parse(splitArray[k]);
+                        k++;
+                        float g = float.Parse(splitArray[k]);
+                        k++;
+                        float b = float.Parse(splitArray[k]);
+                        k++;
+                        manag.drawScript.matrixOfPixels[y, x].gameObject.GetComponent<PixelScript>().PaintPixel(new Color(r / 255, g / 255, b / 255));
+                    }
+                }
+            }
+        }
+
+        manag.ledController.SetElementActive(3);
+    }
+
+        public void MoveInList(bool isUp)
     {
         var savedData = PlayerPrefs.GetString("saveData" + id);
         if (isUp)

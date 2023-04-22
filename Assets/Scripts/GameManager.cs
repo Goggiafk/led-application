@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public TextLedController ledController;
     public DrawScript drawScript;
     public PresetLEDControll presetLEDControll;
+    public GameObject bottomPanel;
 
     private void Awake()
     {

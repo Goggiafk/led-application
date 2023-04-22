@@ -33,6 +33,7 @@ public class TextLedController : MonoBehaviour
     private bool sendBatteryStatus = true;
     public static string dataRecived = "";
     public string rgbArray = "";
+    public int editId = -1;
     // Start is called before the first frame update
 
     private void Awake()
@@ -113,6 +114,15 @@ public class TextLedController : MonoBehaviour
         }
     }
 
+    public void SetElementActive(int i)
+    {
+        for (int j = 0; j < appWindows.Length - 1; j++)
+        {
+            appWindows[j].SetActive(false);
+        }
+        appWindows[i].SetActive(true);
+    }
+
     public void SetAllElementsActive(bool state)
     {
         startingOptions.SetActive(!state);
@@ -178,12 +188,23 @@ public class TextLedController : MonoBehaviour
                 rgbArray += pixelC.GetPixelPosition().x + "`" + pixelC.GetPixelPosition().y + "`" + (pixelC.rgb.r * 255).ToString() + "`" + (pixelC.rgb.g * 255).ToString() + "`" + (pixelC.rgb.b * 255).ToString() + "`";
             }
         }
-        int quantity = PlayerPrefs.GetInt("savesQuantity");
-        Debug.Log(quantity);
-        PlayerPrefs.SetString("saveData" + quantity, rgbArray);
-        GameManager.Instance.presetLEDControll.AddObject(quantity);
-        quantity++;
-        PlayerPrefs.SetInt("savesQuantity", quantity);
+        if (editId == -1)
+        {
+            int quantity = PlayerPrefs.GetInt("savesQuantity");
+            Debug.Log(quantity);
+            PlayerPrefs.SetString("saveData" + quantity, rgbArray);
+            GameManager.Instance.presetLEDControll.AddObject(quantity);
+            quantity++;
+            PlayerPrefs.SetInt("savesQuantity", quantity);
+        }
+        else
+        {
+            PlayerPrefs.SetString("saveData" + editId, rgbArray);
+            GameManager.Instance.presetLEDControll.layoutList[editId].ClearMatrix();
+            GameManager.Instance.presetLEDControll.layoutList[editId].DrawMatrix();
+            SetElementActive(0);
+            editId = -1;
+        }
     }
 
     public void StartButton()
@@ -196,6 +217,7 @@ public class TextLedController : MonoBehaviour
             if (PlayerPrefs.HasKey("ledPower"))
                 powerSlider.value = PlayerPrefs.GetFloat("ledPower");
             ValueChangeCheck();
+            CleanMatrix();
         }
     }
 
@@ -281,18 +303,26 @@ public class TextLedController : MonoBehaviour
 
     public void CleanMatrix()
     {
+        BluetoothService.WritetoBluetooth("lnt` `");
         BluetoothService.WritetoBluetooth("cl`");
         foreach (var pixel in GameManager.Instance.drawScript.matrixOfPixels)
         {
             pixel.GetComponent<PixelScript>().PaintPixel(Color.black);
         }
-        BluetoothService.WritetoBluetooth("cl`");
+        StartCoroutine(Timer(0.3f, () =>
+        {
+            BluetoothService.WritetoBluetooth("cl`");
+        }));
     }
 
     public void CleanTextMatrix()
     {
+        BluetoothService.WritetoBluetooth("lnt` `");
         BluetoothService.WritetoBluetooth("cl`");
-        BluetoothService.WritetoBluetooth("cl`");
+        StartCoroutine(Timer(0.3f, () =>
+        {
+            BluetoothService.WritetoBluetooth("cl`");
+        }));
     }
 
     public void SendCommand(string command)
@@ -338,7 +368,7 @@ public class TextLedController : MonoBehaviour
 
     public void SendEmail()
     {
-        string email = "panow.bogdan@gmail.com";
+        string email = "info@cyberbadge.net";
         string subject = MyEscapeURL("Ordering Badges");
         string body = MyEscapeURL("Hello\r\nI would like to learn more about CyberBadges and potentionally order some");
         Application.OpenURL("mailto:" + email + "?subject=" + subject + "&body=" + body);
@@ -355,7 +385,6 @@ public class TextLedController : MonoBehaviour
 
         BluetoothService.WritetoBluetooth("sdl`");
         string arg = PlayerPrefs.GetString("saveData" + id);
-        Debug.Log(arg);
         string[] splitArray = arg.Split(char.Parse("`"));
         int k = 0;
         var matrixLength = GameManager.Instance.drawScript.matrix;
@@ -385,8 +414,10 @@ public class TextLedController : MonoBehaviour
             bool isActive = !GameManager.Instance.presetLEDControll.isLoadingPreset;
             layout.LoadButton.interactable = isActive;
             layout.DeleteButton.interactable = isActive;
+            layout.EditButton.interactable = isActive;
             layout.UpButton.interactable = isActive;
             layout.DownButton.interactable = isActive;
+            GameManager.Instance.bottomPanel.SetActive(isActive);
         }
     }
 }
